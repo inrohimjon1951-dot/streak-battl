@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSession, getCurrentUser } from '@/lib/auth'
-import { UserID, USERS } from '@/types'
+import { getSession } from '@/lib/auth'
+import { UserID } from '@/types'
 import { useRealtimeData } from '@/hooks/useRealtimeData'
 import { useTheme } from '@/hooks/useTheme'
 import { getWeeklyTasks } from '@/lib/db'
@@ -34,14 +34,13 @@ export default function DashboardPage() {
     myCustomTasks, partnerCustomTasks,
     myReactions, partnerReactions,
     myStreak, partnerStreak,
-    isLoading, lastUpdate, refetch,
+    isLoading, error, lastUpdate, refetch,
   } = useRealtimeData(currentUser || 'muhammadyusuf', partnerId)
 
-  // Load weekly data
   useEffect(() => {
     if (!currentUser) return
-    getWeeklyTasks(currentUser).then(setMyWeekly)
-    getWeeklyTasks(partnerId).then(setPartnerWeekly)
+    getWeeklyTasks(currentUser).then(setMyWeekly).catch(() => {})
+    getWeeklyTasks(partnerId).then(setPartnerWeekly).catch(() => {})
   }, [currentUser, partnerId, lastUpdate])
 
   if (!currentUser || isLoading) {
@@ -52,14 +51,11 @@ export default function DashboardPage() {
         flexDirection: 'column', gap: 16,
       }}>
         <div style={{
-          fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700,
-          letterSpacing: 4,
+          fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 700, letterSpacing: 4,
           background: 'linear-gradient(90deg, var(--cyan), var(--red))',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>STREAK</div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: 3 }}>
-          YUKLANMOQDA...
-        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: 3 }}>YUKLANMOQDA...</div>
         <div style={{ display: 'flex', gap: 6 }}>
           {[0,1,2].map(i => (
             <div key={i} style={{
@@ -73,36 +69,48 @@ export default function DashboardPage() {
     )
   }
 
-  const MY_ID = currentUser
-  const PARTNER_ID = partnerId
+  if (error) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', background: 'var(--bg)',
+        flexDirection: 'column', gap: 16, padding: 24,
+      }}>
+        <div style={{ fontSize: 32 }}>⚠️</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--red)', letterSpacing: 2, textAlign: 'center' }}>
+          {error}
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: '12px 24px', borderRadius: 10, border: '1px solid var(--cyan-border)',
+            background: 'var(--cyan-bg)', color: 'var(--cyan)', cursor: 'pointer',
+            fontFamily: 'var(--font-main)', fontSize: 14, fontWeight: 700, letterSpacing: 2,
+          }}
+        >
+          QAYTA URINISH
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
       <TopBar
-        currentUser={MY_ID}
+        currentUser={currentUser}
         myStreak={myStreak}
         partnerStreak={partnerStreak}
         lastUpdate={lastUpdate}
       />
-
-      {/* Two-panel layout */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        flex: 1,
-        borderTop: '1px solid var(--border)',
-        overflow: 'hidden',
+        display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1,
+        borderTop: '1px solid var(--border)', overflow: 'hidden',
         minHeight: 'calc(100vh - 64px)',
       }}>
-        {/* MY PANEL */}
-        <div style={{
-          borderRight: '1px solid var(--border)',
-          overflowY: 'auto',
-          maxHeight: 'calc(100vh - 64px)',
-        }}>
+        <div style={{ borderRight: '1px solid var(--border)', overflowY: 'auto', maxHeight: 'calc(100vh - 64px)' }}>
           <UserPanel
-            userId={MY_ID}
-            currentUser={MY_ID}
+            userId={currentUser}
+            currentUser={currentUser}
             task={myTask}
             customTasks={myCustomTasks}
             reactions={myReactions}
@@ -112,15 +120,10 @@ export default function DashboardPage() {
             onToast={addToast}
           />
         </div>
-
-        {/* PARTNER PANEL */}
-        <div style={{
-          overflowY: 'auto',
-          maxHeight: 'calc(100vh - 64px)',
-        }}>
+        <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 64px)' }}>
           <UserPanel
-            userId={PARTNER_ID}
-            currentUser={MY_ID}
+            userId={partnerId}
+            currentUser={currentUser}
             task={partnerTask}
             customTasks={partnerCustomTasks}
             reactions={partnerReactions}
@@ -131,7 +134,6 @@ export default function DashboardPage() {
           />
         </div>
       </div>
-
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   )
