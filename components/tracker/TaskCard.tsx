@@ -17,12 +17,8 @@ interface TaskCardProps {
 
 const REACTIONS = ['❤️', '🔥', '👍🏻', '🫡', '✌🏼', '😂', '✊🏼', '💀', '🤫', '😮‍💨']
 
-export default function TaskCard({
-  num, icon, title, completed, color, readOnly,
-  onToggle, onReaction, showReactions, children
-}: TaskCardProps) {
-  const [showReactionPicker, setShowReactionPicker] = useState(false)
-
+export default function TaskCard({ num, icon, title, completed, color, readOnly, onToggle, onReaction, showReactions, children }: TaskCardProps) {
+  const [showPicker, setShowPicker] = useState(false)
   const accent = color === 'cyan' ? 'var(--cyan)' : 'var(--red)'
   const glow = color === 'cyan' ? 'var(--cyan-glow)' : 'var(--red-glow)'
   const bg = color === 'cyan' ? 'var(--cyan-bg)' : 'var(--red-bg)'
@@ -31,67 +27,30 @@ export default function TaskCard({
   return (
     <div style={{
       background: completed ? bg : 'var(--bg-input)',
-      border: `1px solid ${completed ? border : 'var(--border)'}`,
-      borderRadius: 12,
-      padding: '14px',
+      border: `1.5px solid ${completed ? border : 'var(--border)'}`,
+      borderRadius: 12, padding: 14,
       boxShadow: completed ? `0 0 12px ${glow}` : 'none',
-      transition: 'all 0.25s ease',
-      position: 'relative',
+      transition: 'all 0.25s', marginBottom: 8,
     }}>
-      {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        {/* Number */}
-        <div style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 10,
-          color: 'var(--text-faint)',
-          marginTop: 2,
-          flexShrink: 0,
-          width: 20,
-        }}>
-          {num}
-        </div>
-
-        {/* Content */}
+        <span style={{ fontSize: 10, color: 'var(--text-faint)', fontFamily: 'var(--font-mono)', marginTop: 2, minWidth: 20 }}>{num}</span>
         <div style={{ flex: 1 }}>
-          <div style={{
-            fontSize: 13,
-            fontWeight: 600,
-            letterSpacing: 0.5,
-            color: completed ? accent : 'var(--text)',
-            lineHeight: 1.3,
-          }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: completed ? accent : 'var(--text)', marginBottom: children ? 10 : 0 }}>
             {icon} {title}
           </div>
-
-          {/* Children (sub-content like inputs) */}
-          {children && (
-            <div style={{ marginTop: 10 }}>
-              {children}
-            </div>
-          )}
+          {children}
         </div>
-
-        {/* Checkmark */}
-        {!readOnly && (
+        {!readOnly && onToggle && (
           <button
             onClick={onToggle}
             style={{
-              width: 26,
-              height: 26,
-              borderRadius: '50%',
-              border: `1.5px solid ${completed ? accent : 'var(--border-hover)'}`,
+              width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+              border: `2px solid ${completed ? accent : 'var(--border-hover)'}`,
               background: completed ? accent : 'transparent',
               color: completed ? (color === 'cyan' ? '#000' : '#fff') : 'transparent',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              flexShrink: 0,
-              transition: 'all 0.25s ease',
-              animation: completed ? 'check-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards' : 'none',
+              cursor: 'pointer', fontSize: 15, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
             }}
           >
             {completed ? '✓' : ''}
@@ -99,70 +58,23 @@ export default function TaskCard({
         )}
       </div>
 
-      {/* Progress bar */}
-      <div style={{
-        marginTop: 10,
-        height: 2,
-        background: 'var(--border)',
-        borderRadius: 2,
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          height: '100%',
-          width: completed ? '100%' : '0%',
-          background: accent,
-          borderRadius: 2,
-          transition: 'width 0.5s ease',
-          boxShadow: completed ? `0 0 6px ${glow}` : 'none',
-        }} />
+      <div style={{ height: 3, background: 'var(--border)', borderRadius: 2, marginTop: 10, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: completed ? '100%' : '0%', background: accent, borderRadius: 2, transition: 'width 0.5s' }} />
       </div>
 
-      {/* Reaction button (for partner's panel) */}
       {showReactions && onReaction && (
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 8 }}>
           <button
-            onClick={() => setShowReactionPicker(!showReactionPicker)}
-            style={{
-              background: 'none',
-              border: '1px solid var(--border)',
-              borderRadius: 12,
-              padding: '4px 10px',
-              fontSize: 11,
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              letterSpacing: 1,
-            }}
+            onClick={() => setShowPicker(!showPicker)}
+            style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 10, padding: '3px 10px', fontSize: 11, color: 'var(--text-muted)', cursor: 'pointer' }}
           >
             + Reaksiya
           </button>
-
-          {showReactionPicker && (
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 6,
-              marginTop: 8,
-              animation: 'fade-in 0.2s ease',
-            }}>
+          {showPicker && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
               {REACTIONS.map(emoji => (
-                <button
-                  key={emoji}
-                  onClick={() => {
-                    onReaction(emoji)
-                    setShowReactionPicker(false)
-                  }}
-                  style={{
-                    background: 'var(--bg-input)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 20,
-                    padding: '4px 8px',
-                    fontSize: 16,
-                    cursor: 'pointer',
-                    transition: 'transform 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.2)' }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-                >
+                <button key={emoji} onClick={() => { onReaction(emoji); setShowPicker(false) }}
+                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 20, padding: '4px 8px', fontSize: 16, cursor: 'pointer' }}>
                   {emoji}
                 </button>
               ))}

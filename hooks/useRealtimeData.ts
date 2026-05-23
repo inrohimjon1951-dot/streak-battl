@@ -78,6 +78,7 @@ export function useRealtimeData(myId: UserID, partnerId: UserID) {
 
   useEffect(() => {
     fetchAll()
+
     try {
       const tasksChannel = supabase
         .channel('daily_tasks_changes')

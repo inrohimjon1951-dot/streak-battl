@@ -6,6 +6,7 @@ import { UserID, USERS } from '@/types'
 import { clearSession } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { StreakData } from '@/types'
+import Link from 'next/link'
 
 interface TopBarProps {
   currentUser: UserID
@@ -19,179 +20,57 @@ export default function TopBar({ currentUser, myStreak, partnerStreak, lastUpdat
   const { theme, toggleTheme } = useTheme()
   const router = useRouter()
 
-  const maxStreak = Math.max(
-    myStreak?.current_streak || 0,
-    partnerStreak?.current_streak || 0
-  )
-
-  const handleLogout = () => {
-    clearSession()
-    router.replace('/login')
-  }
+  const maxStreak = Math.max(myStreak?.current_streak || 0, partnerStreak?.current_streak || 0)
 
   return (
     <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '0 24px',
-      height: 64,
-      background: 'var(--bg-card)',
-      borderBottom: '1px solid var(--border)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      backdropFilter: 'blur(12px)',
-      gap: 16,
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      padding: '0 16px', height: 60,
+      background: 'var(--bg-card)', borderBottom: '1px solid var(--border)',
+      position: 'sticky', top: 0, zIndex: 100, gap: 12,
     }}>
       {/* Logo */}
-      <div style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: 18,
-        fontWeight: 700,
-        letterSpacing: 4,
-        background: 'linear-gradient(90deg, var(--cyan), var(--red))',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        flexShrink: 0,
-      }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, letterSpacing: 3, background: 'linear-gradient(90deg, var(--cyan), var(--red))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', flexShrink: 0 }}>
         STREAK
       </div>
 
-      {/* Center: Clock + Countdown */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 24, flex: 1, justifyContent: 'center' }}>
-        {/* Clock */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 20,
-            fontWeight: 700,
-            letterSpacing: 2,
-            color: 'var(--cyan)',
-            lineHeight: 1,
-          }}>
-            {time}
-          </div>
-          <div style={{
-            fontSize: 10,
-            letterSpacing: 1.5,
-            color: 'var(--text-muted)',
-            marginTop: 3,
-            fontWeight: 600,
-          }}>
-            {date}
-          </div>
+      {/* Center */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'center', minWidth: 0 }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, color: 'var(--cyan)', lineHeight: 1 }}>{time}</div>
+          <div style={{ fontSize: 9, color: 'var(--text-faint)', marginTop: 2, letterSpacing: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>{date}</div>
         </div>
 
-        {/* Divider */}
-        <div style={{ width: 1, height: 36, background: 'var(--border)' }} />
-
-        {/* Countdown */}
-        <div style={{
-          background: 'rgba(255,23,68,0.1)',
-          border: '1px solid rgba(255,23,68,0.3)',
-          borderRadius: 10,
-          padding: '8px 16px',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 18,
-            fontWeight: 700,
-            color: 'var(--red)',
-            letterSpacing: 2,
-            lineHeight: 1,
-          }}>
-            {countdown}
-          </div>
-          <div style={{
-            fontSize: 9,
-            letterSpacing: 2,
-            color: 'var(--red-dim)',
-            marginTop: 3,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-          }}>
-            kun yakuniga qadar
-          </div>
+        <div style={{ background: 'rgba(255,23,68,0.1)', border: '1px solid rgba(255,23,68,0.3)', borderRadius: 8, padding: '6px 12px', textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--red)', lineHeight: 1 }}>{countdown}</div>
+          <div style={{ fontSize: 8, color: 'var(--red-dim)', marginTop: 2, letterSpacing: 1 }}>YAKUNGA QADAR</div>
         </div>
 
-        {/* Live indicator */}
         {lastUpdate && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: 'var(--live)',
-              animation: 'live-dot 1.4s ease-in-out infinite',
-            }} />
-            <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1.5, fontWeight: 600 }}>
-              LIVE
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--live)', animation: 'live-dot 1.4s ease-in-out infinite' }} />
+            <span style={{ fontSize: 9, color: 'var(--text-faint)', letterSpacing: 1.5, fontWeight: 600 }}>LIVE</span>
           </div>
         )}
       </div>
 
-      {/* Right: streak + theme + logout */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        {/* Streak badge */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          background: 'var(--gold-bg)',
-          border: '1px solid rgba(255,215,0,0.3)',
-          borderRadius: 20,
-          padding: '6px 14px',
-          fontSize: 13,
-          fontWeight: 700,
-          color: 'var(--gold)',
-          letterSpacing: 1,
-        }}>
-          🔥 {maxStreak} KUN
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'var(--gold-bg)', border: '1px solid rgba(255,215,0,0.3)', borderRadius: 16, padding: '5px 10px', fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>
+          🔥 {maxStreak}
         </div>
 
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          style={{
-            background: 'var(--bg-panel)',
-            border: '1px solid var(--border)',
-            borderRadius: 20,
-            padding: '6px 14px',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-main)',
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: 1,
-            transition: 'all 0.2s',
-          }}
-        >
-          {theme === 'dark' ? '☀️ YORUG\'' : '🌙 QORONG\'U'}
+        <Link href="/achievements" style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', color: 'var(--text-muted)', textDecoration: 'none', fontSize: 11, fontWeight: 600, letterSpacing: 1 }}>
+          🏆
+        </Link>
+
+        <button onClick={toggleTheme} style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14 }}>
+          {theme === 'dark' ? '☀️' : '🌙'}
         </button>
 
-        {/* User indicator + logout */}
-        <button
-          onClick={handleLogout}
+        <button onClick={() => { clearSession(); router.replace('/login') }}
           title="Chiqish"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            border: `1.5px solid ${currentUser === 'muhammadyusuf' ? 'var(--cyan-border)' : 'var(--red-border)'}`,
-            background: currentUser === 'muhammadyusuf' ? 'var(--cyan-bg)' : 'var(--red-bg)',
-            color: currentUser === 'muhammadyusuf' ? 'var(--cyan)' : 'var(--red)',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 11,
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+          style={{ width: 32, height: 32, borderRadius: 8, border: `1.5px solid ${currentUser === 'muhammadyusuf' ? 'var(--cyan-border)' : 'var(--red-border)'}`, background: currentUser === 'muhammadyusuf' ? 'var(--cyan-bg)' : 'var(--red-bg)', color: currentUser === 'muhammadyusuf' ? 'var(--cyan)' : 'var(--red)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {USERS[currentUser].initials}
         </button>
       </div>
